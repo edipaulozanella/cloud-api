@@ -90,13 +90,17 @@ class Server {
       });
     });
 
-    this.server.get('/files/:name', function (req, res) {
-      //  var name = req.params.name;
-       fs.readFile("../assets/files/"+req.params.name,  function(err, data) {
-         res.write(data);
-         res.end();
-       });
-    });
+    this.server.get(/\/files\/?.*/, restify.serveStatic({
+      // directory: './public'
+      directory: '../assets/'
+    }));
+    // this.server.get('/files/:name', function (req, res) {
+    //   //  var name = req.params.name;
+    //    fs.readFile("../assets/files/"+req.params.name,  function(err, data) {
+    //      res.write(data);
+    //      res.end();
+    //    });
+    // });
 
     this.server.listen(port, (err) => {  if (err){console.error(err);}else{ console.log('App is ready at : ' + port)}; });
     if (process.env.environment == 'production') {
