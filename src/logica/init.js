@@ -6,6 +6,6 @@ class Aplication {
 
 }
 
-export function start() {
-	new Aplication();
+export function start(server) {
+	new Aplication(server);
 }

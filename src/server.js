@@ -12,7 +12,7 @@ restful.configure(server, {
   dirname: __dirname + "/api"
 });
 
-Init.start();
+Init.start(server);
 new Router(server)
 
  
