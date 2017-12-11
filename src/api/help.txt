@@ -1,8 +1,0 @@
-select (point(-0.1277,51.5073) <@> point(-74.006,40.7144)) as distance;
-create extension cube;
-create extension earthdistance;
-
-brew install postgis
-9.3.16
-
-CREATE EXTENSION postgis;
