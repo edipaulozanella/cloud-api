@@ -1,4 +1,6 @@
 // by 1app
+'use strict';
+
 var ObjectId = require('mongodb').ObjectID;
 var MongoClient = require('mongodb').MongoClient;
 
@@ -9,8 +11,10 @@ exports.setDatabase = function (nome) {
   var uristring = 'mongodb://localhost:27017/' + database;
 
   MongoClient.connect(uristring, function (err, connection) {
-    if (err) { return console.dir(err); }
-    db = connection
+    if (err) {
+      return console.dir(err);
+    }
+    db = connection;
     console.log(uristring);
     db.on('error', function (e) {
       console.log(e);
@@ -21,12 +25,9 @@ exports.setDatabase = function (nome) {
       }
     });
   });
-
-}
+};
 
 var db = null;
-
-
 
 function getData(entidade, where, retorno) {
   if (!where) {
@@ -104,7 +105,6 @@ function updateObj(data, entidade, where, retorno) {
   });
 }
 
-
 exports.update = function (data, entidade, where, retorno) {
   var collection = db.collection(entidade);
   var _id = data._id;
@@ -120,9 +120,7 @@ exports.update = function (data, entidade, where, retorno) {
       retorno(data);
     }
   });
-}
-
-
+};
 
 exports.salvarLista = function (lista, entidade, retorno) {
   var collection = db.collection(entidade);
@@ -137,7 +135,7 @@ exports.salvarLista = function (lista, entidade, retorno) {
       retorno(lista);
     }
   });
-}
+};
 //.limit( 5 )
 
 function getLista(entidade, retorno) {
@@ -169,7 +167,7 @@ function getListaWhereOrder(entidade, where, order, retorno) {
   });
 };
 
-exports.select = function (entidade, where,  retorno) {
+exports.select = function (entidade, where, retorno) {
   var collection = db.collection(entidade);
   collection.find(where).toArray(function (err, result) {
     if (err) {
@@ -183,7 +181,7 @@ exports.select = function (entidade, where,  retorno) {
     }
   });
 };
-exports.find = function (config,  retorno) {
+exports.find = function (config, retorno) {
   var collection = db.collection(config.entidade);
   collection.find(config.where).limit(config.limit).sort(config.order).toArray(function (err, result) {
     if (err) {
@@ -197,7 +195,7 @@ exports.find = function (config,  retorno) {
     }
   });
 };
-exports.first = function (entidade, where,  retorno) {
+exports.first = function (entidade, where, retorno) {
   var collection = db.collection(entidade);
   collection.find(where).toArray(function (err, result) {
     if (err) {
@@ -207,7 +205,7 @@ exports.first = function (entidade, where,  retorno) {
     }
   });
 };
-exports.save =  function ( entidade,data, retorno) {
+exports.save = function (entidade, data, retorno) {
   if (data._id) {
     // updateObj(data, entidade,{ "_id": data._id } , retorno);
     updateObj(data, entidade, { "_id": ObjectId(data._id) }, retorno);
@@ -228,7 +226,7 @@ exports.save =  function ( entidade,data, retorno) {
       }
     });
   }
-}
+};
 
 exports.deletebyID = function (id, entidade, retorno) {
   var collection = db.collection(entidade);
@@ -237,12 +235,12 @@ exports.deletebyID = function (id, entidade, retorno) {
       console.log(numRemoved);
       retorno(numRemoved);
     }
-  })
-}
+  });
+};
 
 exports.abrirBanco = function () {
   mongoose.connect(uristring);
-}
+};
 
 exports.getListaWhere = function (entidade, where, retorno) {
   if (!where) {

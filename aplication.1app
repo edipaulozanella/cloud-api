@@ -1,9 +1,0 @@
-{
-    "entidade": "aplication",
-    "status": 1,
-    "path": "/Users/developer/projects/bt/api/",
-    "rewriteGlobalStyles": true,
-    "rewriteIndexPages": true,
-    "type": "cloud",
-    "name": "api"
-}
