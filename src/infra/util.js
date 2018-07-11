@@ -1,31 +1,40 @@
-var make_token = require('jsonwebtoken');
+var make_token = require("jsonwebtoken");
 
-exports.parseToken = function (token) {
+exports.parseToken = function(token) {
   try {
-    var decoded = make_token.verify(token, 'abrate');
+    var decoded = make_token.verify(token, "abrate");
     return decoded;
   } catch (err) {
     return false;
   }
 };
-exports.makeToken = function (obj) {
-  var token = make_token.sign(obj, 'abrate', {noTimestamp: true});
-  return  token;
+exports.makeToken = function(obj) {
+  var token = make_token.sign(obj, "abrate", { noTimestamp: true });
+  return token;
 };
 
-
-exports.getToken = function (req) {
-  if (req.headers && req.headers.token_user) {
-    return req.headers.token_user;
+exports.getToken = function(req) {
+  if (req.headers && req.headers["token-user"]) {
+    return req.headers["token-user"];
   } else {
     return null;
   }
 };
 
-exports.verifyToken = function (req) {
-  if (req.headers && req.headers.token_user) {
+exports.verifyToken = function(req) {
+  if (req.headers && req.headers["token-user"]) {
     try {
-      return make_token.verify(req.headers.token_user, 'abrate');
+      return make_token.verify(req.headers["token-user"], "abrate");
+    } catch (err) {
+      return false;
+    }
+  }
+  return null;
+};
+exports.getUserFromToken = function(req) {
+  if (req.headers && req.headers["token-user"]) {
+    try {
+      return make_token.verify(req.headers["token-user"], "abrate");
     } catch (err) {
       return false;
     }
@@ -33,19 +42,38 @@ exports.verifyToken = function (req) {
   return null;
 };
 
-
-exports.capitalizar = function (string) {
+exports.capitalizar = function(string) {
   if (!string) {
     return "";
   }
   string = string.toLowerCase();
   return string.charAt(0).toUpperCase() + string.slice(1);
-}
+};
 
-exports.replace = function (string, de, para) {
+exports.subString = function(string, pos) {
+  if (!string) {
+    return "";
+  }
+  if (!pos) {
+    return string;
+  }
+  var re = "";
+  // if (contemString(string, "#")) {
+  //   var numero = string.split("#")[1];
+  var pos = parseInt(pos + "");
+  if (pos < string.length - 1) {
+    re = string.substring(0, pos) + "...";
+  } else {
+    re = string;
+  }
+  // }
+  return re;
+};
+
+exports.replace = function(string, de, para) {
   var varString = new String(string);
   var cString = new String();
-  var varRes = '';
+  var varRes = "";
   for (a = 0; a < varString.length; a++) {
     cString = varString.substring(a, a + 1);
     if (cString === de) {
@@ -53,10 +81,10 @@ exports.replace = function (string, de, para) {
     }
     varRes += cString;
   }
-  return  varRes;
+  return varRes;
 };
 
-exports.montarObjeto = function (obj) {
+exports.montarObjeto = function(obj) {
   //    console.log(obj);
   if (!obj) {
     return {};
@@ -75,8 +103,8 @@ exports.montarObjeto = function (obj) {
   return novo;
 };
 
-exports.removerAcentos = function (s) {
-  if(!s){
+exports.removerAcentos = function(s) {
+  if (!s) {
     return "";
   }
   var r = s.toLowerCase();
@@ -94,8 +122,8 @@ exports.removerAcentos = function (s) {
   r = r.replace(new RegExp(/\W/g), "");
   return r;
 };
-exports.path = function (s) {
-  if(!s){
+exports.path = function(s) {
+  if (!s) {
     return "";
   }
   var r = s.toLowerCase();
@@ -114,7 +142,7 @@ exports.path = function (s) {
   return r;
 };
 
-exports.replaceAll = function (string, str, key) {
+exports.replaceAll = function(string, str, key) {
   try {
     if (!string) {
       return "";
@@ -125,13 +153,13 @@ exports.replaceAll = function (string, str, key) {
     if (!key) {
       key = "";
     }
-    return string.replace(new RegExp(str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g'), key);
+    return string.replace(new RegExp(str.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&"), "g"), key);
   } catch (e) {
     return string;
   }
 };
 
-exports.montarSave = function (objeto, session, entidade) {
+exports.montarSave = function(objeto, session, entidade) {
   if (entidade) {
     objeto.entidade = entidade;
   }
@@ -149,7 +177,7 @@ exports.montarSave = function (objeto, session, entidade) {
   return objeto;
 };
 
-exports.montarPreSelect = function (tabela, colunas) {
+exports.montarPreSelect = function(tabela, colunas) {
   var col = " * ";
   if (colunas && colunas.length > 0) {
     col = " objectId, entidade, createdAt, updatedAt , json_build_object( ";
@@ -160,13 +188,13 @@ exports.montarPreSelect = function (tabela, colunas) {
     }
     col += ") as dados ";
   }
-  var select = 'SELECT ' + col + ' FROM ' + tabela + '  ';
+  var select = "SELECT " + col + " FROM " + tabela + "  ";
 
   console.log(select);
   return select;
 };
 
-exports.montarSelect = function (tabela, entidade, keyApp, colunas) {
+exports.montarSelect = function(tabela, entidade, keyApp, colunas) {
   var col = " * ";
   if (colunas && colunas.length > 0) {
     col = " objectId, entidade, createdAt, updatedAt , json_build_object( ";
@@ -177,31 +205,24 @@ exports.montarSelect = function (tabela, entidade, keyApp, colunas) {
     }
     col += ") as dados ";
   }
-  var select = 'SELECT ' + col + ' FROM ' + tabela + '  where '
-  + ' "entidade"= \'' + entidade + '\' and '
-  + ' "key_app"= \'' + keyApp + '\' and status = 1 '
-  + ';';
+  var select = "SELECT " + col + " FROM " + tabela + "  where " + ' "entidade"= \'' + entidade + "' and " + ' "key_app"= \'' + keyApp + "' and status = 1 " + ";";
 
   console.log(select);
   return select;
 };
 
-
-exports.log = function (obj) {
+exports.log = function(obj) {
   try {
     console.log(JSON.stringify(obj));
-  } catch (e) {
-
-  }
+  } catch (e) {}
 };
 
- 
-exports.contemString = function (string, key) {
+exports.contemString = function(string, key) {
   if (!string || !key) {
     return false;
   }
   try {
-    string = string+"";
+    string = string + "";
     if (string && string.indexOf(key) >= 0) {
       return true;
     } else {
@@ -212,15 +233,17 @@ exports.contemString = function (string, key) {
   }
 };
 
-exports.parseColor = function (cor_hex) {
+exports.parseColor = function(cor_hex) {
   var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(cor_hex);
-  return result ? {
-    r: parseInt(result[1], 16),
-    g: parseInt(result[2], 16),
-    b: parseInt(result[3], 16)
-  } : null;
+  return result
+    ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      }
+    : null;
 };
-exports.parseColorRGBAtoHEXAndroid = function (rgba) {
+exports.parseColorRGBAtoHEXAndroid = function(rgba) {
   if (!Uteis.conteString(rgba, "rgba")) {
     return "#00000000";
   }
@@ -234,13 +257,9 @@ exports.parseColorRGBAtoHEXAndroid = function (rgba) {
     var hex = c.toString(16);
     return hex.length === 1 ? "0" + hex : hex;
   }
-  return "#" +
-  componentToHex(parseInt((val[3] * 255))) +
-  componentToHex(parseInt(val[0])) + "" +
-  componentToHex(parseInt(val[1])) + "" +
-  componentToHex(parseInt(val[2]));
+  return "#" + componentToHex(parseInt(val[3] * 255)) + componentToHex(parseInt(val[0])) + "" + componentToHex(parseInt(val[1])) + "" + componentToHex(parseInt(val[2]));
 };
-exports.parseColorRGBAtoObject = function (rgba) {
+exports.parseColorRGBAtoObject = function(rgba) {
   var st = rgba.replace("rgba(", "");
   st = st.replace(")", "");
   var val = st.split(",");
@@ -256,9 +275,9 @@ exports.parseColorRGBAtoObject = function (rgba) {
   };
 };
 
-exports.startsWith = function (string, key) {
-  if(string){
-    string = string+"";
+exports.startsWith = function(string, key) {
+  if (string) {
+    string = string + "";
   }
   if (string && string.indexOf(key) === 0) {
     return true;
@@ -266,7 +285,7 @@ exports.startsWith = function (string, key) {
     return false;
   }
 };
-exports.endWith = function (string, key) {
+exports.endWith = function(string, key) {
   if (string && string.indexOf(key, string.length - key.length) === 0) {
     return true;
   } else {
@@ -274,13 +293,13 @@ exports.endWith = function (string, key) {
   }
 };
 
-exports.isNumber = function (n) {
+exports.isNumber = function(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 };
-exports.parseNumero = function (string) {
+exports.parseNumero = function(string) {
   try {
     string = string + "";
-    var val = string.replace(',', '.');
+    var val = string.replace(",", ".");
     var nnn = parseFloat(val);
     //        return parseFloat(val);
     return nnn;
@@ -288,10 +307,10 @@ exports.parseNumero = function (string) {
     return 0.0;
   }
 };
-exports.parseNumeroDuasCasas = function (string) {
+exports.parseNumeroDuasCasas = function(string) {
   try {
     string = string + "";
-    var val = string.replace(',', '.');
+    var val = string.replace(",", ".");
     var nnn = parseFloat(val);
     var num = nnn.toFixed(2);
     //        return parseFloat(val);
@@ -300,7 +319,7 @@ exports.parseNumeroDuasCasas = function (string) {
     return 0.0;
   }
 };
-exports.capitalize = function (string) {
+exports.capitalize = function(string) {
   if (!string || string === "") {
     return "";
   }
@@ -308,46 +327,44 @@ exports.capitalize = function (string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 };
 
-exports.parseBoolean = function (string) {
+exports.cleanNumber = function(string) {
+  try {
+    string = string + "";
+    // console.log(string);"de33sl".replace(/[^,.,0-9]/g, '')
+    var val = string.replace(",", ".");
+    val = val.replace(/[^,-.,0-9]/g, "");
+    return val.trim();
+  } catch (e) {
+    // console.log(e);
+    return "";
+  }
+};
+
+exports.parseBoolean = function(string) {
   try {
     switch (string.toLowerCase()) {
       case "true":
-      return true;
+        return true;
       case "yes":
-      return true;
+        return true;
       case "1":
-      return true;
+        return true;
       case "false":
-      return false;
+        return false;
       case "no":
-      return false;
+        return false;
       case "0":
-      return false;
+        return false;
       case null:
-      return false;
+        return false;
       default:
-      return false;
+        return false;
     }
   } catch (e) {
     return false;
   }
 };
-exports.parseInt = function (string) {
-  if (!string || string === "") {
-    return 0;
-  }
-  try {
-    var v = parseInt(string + "");
-    if (!v) {
-      v = 0;
-    }
-    return v;
-  } catch (e) {
-    //        alert(e);
-    return 0;
-  }
-}
-exports.parseInteger = function (string) {
+exports.parseInt = function(string) {
   if (!string || string === "") {
     return 0;
   }
@@ -362,14 +379,29 @@ exports.parseInteger = function (string) {
     return 0;
   }
 };
-exports.parseReal = function (string) {
+exports.parseInteger = function(string) {
+  if (!string || string === "") {
+    return 0;
+  }
+  try {
+    var v = parseInt(string + "");
+    if (!v) {
+      v = 0;
+    }
+    return v;
+  } catch (e) {
+    //        alert(e);
+    return 0;
+  }
+};
+exports.parseReal = function(string) {
   try {
     string = string + "";
-    var val = string.replace(',', '.');
+    var val = string.replace(",", ".");
     var nnn = parseFloat(string);
     var num = nnn.toFixed(2);
     var str = "" + num;
-    var numero = "" + str.replace('.', ',');
+    var numero = "" + str.replace(".", ",");
     var vfinal = numero.replace(/[.]/g, ",").replace(/\d(?=(?:\d{3})+(?:\D|$))/g, "$&.");
     return vfinal;
   } catch (e) {
